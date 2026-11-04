@@ -4,7 +4,7 @@ description: "Use this skill whenever the user wants to read, extract, convert, 
 license: MIT
 compatibility: Requires Python 3.10+ and uv; the first run downloads markitdown from PyPI, so it needs network access (later runs use the uv cache).
 metadata:
-  version: 0.3.0
+  version: 0.3.1
   author: unrealinux
   homepage: https://github.com/unrealinux/doc-to-markdown-skill
 ---
