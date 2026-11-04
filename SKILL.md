@@ -1,5 +1,5 @@
 ---
-name: markitdown
+name: doc-to-markdown
 description: "Use this skill whenever the user wants to read, extract, convert, or summarize a supported document file as Markdown. Triggers include: any mention of 'PDF', 'Word', 'docx', 'PowerPoint', 'pptx', 'Excel', 'xlsx', 'spreadsheet', 'extract text', 'convert to markdown', 'read this document', 'what is in this file', 'summarize this document'. Also triggers when the user provides a file path and asks to see its content in text form. Use for supported document formats that need to be transformed into readable Markdown. Does not OCR images or scanned PDFs. 中文请求同样触发：把 PDF/Word/Excel/PPT 转成 Markdown、读取或提取文档内容、提取表格、批量转换文件夹、看一下这个文件里有什么。"
 license: MIT
 compatibility: Requires Python 3.10+ and uv; the first run downloads markitdown from PyPI, so it needs network access (later runs use the uv cache).
@@ -9,9 +9,9 @@ metadata:
   homepage: https://github.com/unrealinux/markitdown-skill
 ---
 
-# MarkItDown — Document to Markdown Converter
+# Document → Markdown Converter
 
-A universal document reader powered by [microsoft/markitdown](https://github.com/microsoft/markitdown). Converts files of all formats into clean, structured Markdown.
+A universal document reader powered by [microsoft/markitdown](https://github.com/microsoft/markitdown). Converts files of all formats into clean, structured Markdown. The skill is named `doc-to-markdown` to stay out of the upstream package's namespace.
 
 ## Quick Reference
 
@@ -55,7 +55,7 @@ Expect a 1-2 minute download on the very first conversion; later runs hit the ca
 py "<skill_dir>/scripts/convert.py" document.pdf -o output.md
 ```
 
-`<skill_dir>` is this skill's own directory — the folder containing this SKILL.md. After a manual install it is `~/.agents/skills/markitdown`; `README.md` has the install steps and a two-command check.
+`<skill_dir>` is this skill's own directory — the folder containing this SKILL.md. After a manual install it is `~/.agents/skills/doc-to-markdown`; `README.md` has the install steps and a two-command check.
 
 ## Usage
 

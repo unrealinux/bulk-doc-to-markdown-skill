@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """Build the distributable zip for this skill.
 
-    py scripts/package_skill.py                 # dist/markitdown-<version>.zip
+    py scripts/package_skill.py                 # dist/doc-to-markdown-<version>.zip
     py scripts/package_skill.py --version 1.0.0 --out /tmp
 
 The archive contains a single top-level directory named after the skill:
 
-    markitdown/
+    doc-to-markdown/
     ├── SKILL.md
     ├── README.md
     ├── LICENSE
@@ -25,7 +25,7 @@ run its own test suite offline; a missing fixtures/ directory only warns.
 
     py scripts/package_skill.py --flat --no-fixtures   # platform upload package
 
---flat puts SKILL.md at the archive root instead of under markitdown/, which is
+--flat puts SKILL.md at the archive root instead of under doc-to-markdown/, which is
 what a skill marketplace (WorkBuddy / SkillPay) expects. --no-fixtures drops
 evals/fixtures/: those are pdf/docx/xlsx/pptx/png/zip/wav files and the platform
 rejects those types. --flat implies --no-fixtures.
@@ -203,7 +203,7 @@ def main():
     version = args.version or frontmatter.get("metadata.version") or "0.0.0"
     if args.flat and args.vendor:
         print("Error: --flat is for marketplace upload; the offline bundle needs "
-              "its markitdown/ folder", file=sys.stderr)
+              "its archive folder", file=sys.stderr)
         return 1
 
     files = collect_files(SKILL_ROOT, include_fixtures=include_fixtures)

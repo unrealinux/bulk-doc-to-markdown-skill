@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the markitdown skill evals defined in evals.json.
+"""Run the doc-to-markdown skill evals defined in evals.json.
 
     py evals/make_fixtures.py && py evals/run_evals.py
 

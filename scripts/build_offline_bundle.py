@@ -5,7 +5,7 @@
     py scripts/build_offline_bundle.py --keep-python       # reuse the interpreter
     py scripts/build_offline_bundle.py --extras docx,pdf   # smaller bundle
 
-The result is `dist/markitdown-<version>-offline-<label>.zip` (label defaults to
+The result is `dist/doc-to-markdown-<version>-offline-<label>.zip` (label defaults to
 the current platform, e.g. `offline-win-x64`). It runs on a machine with **no
 network, no Python and no uv**: the archive contains a standalone CPython under
 `vendor/python/` with markitdown already installed, and convert.py prefers that
@@ -364,7 +364,7 @@ def main():
     print("6/6 package")
     frontmatter = packaging.read_frontmatter(os.path.join(SKILL_ROOT, "SKILL.md"))
     version = frontmatter.get("metadata.version") or "0.0.0"
-    folder = frontmatter.get("name") or "markitdown"
+    folder = frontmatter.get("name") or "doc-to-markdown"
     files = packaging.collect_files(SKILL_ROOT)
     entries = [(os.path.join(SKILL_ROOT, rel), rel) for rel in files]
     vendor_entries = packaging.collect_vendor(root)
