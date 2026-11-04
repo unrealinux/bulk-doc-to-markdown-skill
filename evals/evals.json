@@ -292,7 +292,7 @@
       "expected_output": "URI 识别、--extra 合成 markitdown[...]（all 覆盖其余）、已 Markdown 单独归类、.doc/.ppt 不假装支持",
       "files": ["scripts/convert.py"],
       "mode": "source",
-      "expect_contains": ["def with_spec", "if \"all\" in names", "def is_uri", "ALREADY_MARKDOWN", "def report_skipped", ".doc and .ppt are NOT here"],
+      "expect_contains": ["def with_spec", "MARKITDOWN_VERSION = \"0.1.8\"", "if \"all\" in names", "def is_uri", "ALREADY_MARKDOWN", "def report_skipped", ".doc and .ppt are NOT here"],
       "expect_not_contains": ["MARKITDOWN_WITH", "find_python"]
     },
     {
@@ -392,6 +392,23 @@
         "def build"
       ],
       "expect_not_contains": []
+    },
+    {
+      "id": 33,
+      "prompt": "平台上传包：--flat 把 SKILL.md 放到 zip 根，且不带平台拒收的夹具",
+      "expected_output": "文件名带 -skillpay、声明 SKILL.md 在根、清单无 markitdown/ 前缀、evals/fixtures/ 被明确排除",
+      "mode": "cli",
+      "script": "scripts/package_skill.py",
+      "args": ["--out", "{out}", "--version", "9.9.9", "--flat"],
+      "min_chars": 40,
+      "expect_stdout_contains": [
+        "markitdown-9.9.9-skillpay.zip",
+        "SKILL.md at the zip root",
+        "evals/fixtures/: left out",
+        "\n     SKILL.md",
+        "\n     scripts/convert.py"
+      ],
+      "expect_not_contains": ["markitdown/SKILL.md", "markitdown/evals", ".docx", ".pdf"]
     }
   ]
 }

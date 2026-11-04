@@ -223,9 +223,8 @@ def interpreter_path(root):
     raise SystemExit(f"no python executable under {root}")
 
 
-def install_packages(python, extras):
-    """Install markitdown and its format extras into the bundled interpreter."""
-    requirement = "markitdown[" + ",".join(extras) + "]"
+def install_packages(python, requirement):
+    """Install the pinned markitdown requirement into the bundled interpreter."""
     cmd = [python, "-m", "pip", "install", "--quiet", "--disable-pip-version-check",
            "--break-system-packages", "--no-warn-script-location", requirement]
 
@@ -346,11 +345,12 @@ def main():
     python = interpreter_path(root)
     print(f"  interpreter: {python}")
 
-    print(f"2/6 markitdown[{','.join(extras)}]")
+    requirement = convert.markitdown_requirement(extras)
+    print(f"2/6 {requirement}")
     if args.skip_install:
         print("  skipped")
     else:
-        install_packages(python, extras)
+        install_packages(python, requirement)
 
     print("3/6 trim")
     trim(root)

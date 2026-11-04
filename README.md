@@ -2,6 +2,8 @@
 
 基于 [microsoft/markitdown](https://github.com/microsoft/markitdown) 0.1.8 的技能：把各种文档转成 Markdown。符合 [Agent Skills 规范](https://agentskills.io/specification)，可被 Pi、Claude Code 及其它实现加载。
 
+本项目是社区封装，与 Microsoft 无隶属关系；markitdown 本体由 Microsoft 以 MIT 许可发布，运行时安装。
+
 **本文档是完整中文说明**（安装、全部开关、格式边界、出错排查、评测、打包）。
 `SKILL.md` 与 `references/formats.md` 是给模型读的英文原文，原因见文末[关于语言](#关于语言)。
 
@@ -11,6 +13,12 @@
 
 ```bash
 unzip markitdown-*.zip -d ~/.agents/skills/
+```
+
+Windows PowerShell（文件名按实际版本替换）：
+
+```powershell
+Expand-Archive .\markitdown-0.3.0.zip -DestinationPath "$env:USERPROFILE\.agents\skills"
 ```
 
 解压出来的目录名必须是 `markitdown`（Agent Skills 规范要求 frontmatter 的 `name` 等于父目录名），不要改名、也不要再套一层目录。开发时建议用软链指向工作副本，否则仓库更新不会生效：
@@ -27,7 +35,7 @@ python3 $SKILL/scripts/convert.py --help          # 列出全部开关，不联�
 python3 $SKILL/scripts/convert.py $SKILL/evals/fixtures/sample.txt   # 首次会下载依赖，约 1-2 分钟
 ```
 
-agent 会自动按 `SKILL.md` 的 `description` 触发；也可以显式调用 `/skill:markitdown`。想彻底确认，跑一遍自带评测（29 条，离线）：
+agent 会自动按 `SKILL.md` 的 `description` 触发；也可以显式调用 `/skill:markitdown`。想彻底确认，跑一遍自带评测（32 条，离线）：
 
 ```bash
 cd ~/.agents/skills/markitdown && python3 evals/run_evals.py
@@ -67,15 +75,14 @@ python3 $SKILL/scripts/convert.py ./文档 --output-dir ./md --recursive
 
 **需要 Python 3.10+ 和 [uv](https://astral.sh/uv)。** markitdown 本体由 uv 按需安装（首次运行会下载，之后走缓存），不需要手动 pip。
 
-```bash
-# 安装 uv
-curl -LsSf https://astral.sh/uv/install.sh | sh
+按官方安装页选择对应系统的安装方式：<https://docs.astral.sh/uv/getting-started/installation/>。装好后确认：
 
-# 确认 uv 能找到 Python 3.12
+```bash
+uv --version
 uv python list
 ```
 
-脚本默认安装的是 `markitdown[docx,xls,xlsx,pptx,pdf]`：基础包读不了 Office 和 PDF，会报 `MissingDependencyException`。首次转换会下载依赖（1-2 分钟），之后走缓存。需要其它后端（音频转写、Outlook 邮件、Azure DI、插件）时用 `--extra <name>`（可重复），或 `--extra all` 一次装全。
+脚本默认安装的是 `markitdown[docx,xls,xlsx,pptx,pdf]==0.1.8`：基础包读不了 Office 和 PDF，会报 `MissingDependencyException`。首次转换会下载依赖（1-2 分钟），之后走缓存。需要其它后端（音频转写、Outlook 邮件、Azure DI、插件）时用 `--extra <name>`（可重复），或 `--extra all` 一次装全。
 
 ## 命令行开关
 
@@ -187,7 +194,7 @@ python3 $SKILL/scripts/convert.py invoice.txt
 python3 evals/make_fixtures.py && python3 evals/run_evals.py
 ```
 
-夹具中的 txt/csv/html/docx/pdf/png 与目录树由标准库生成，不需要联网；`sample.xlsx` / `sample.pptx` 通过 uv + `openpyxl` + `python-pptx` 生成（手写 OOXML 很难同时满足这两个读取器），拿不到网络时这两条评测显示为 SKIP 而不是失败。发行包内已带夹具，所以解压后直接跑 `run_evals.py` 即可，全程离线。
+夹具中的 txt/csv/html/docx/pdf/png 与目录树由标准库生成，不需要联网；`sample.xlsx` / `sample.pptx` 通过 uv + `openpyxl` + `python-pptx` 生成（手写 OOXML 很难同时满足这两个读取器），拿不到网络时这两条评测显示为 SKIP 而不是失败。GitHub Release 的包内带夹具，解压后可直接跑 `run_evals.py`，全程离线；SkillHub 上传包按平台规则不含夹具，需要先跑 `make_fixtures.py`。
 
 共 32 条评测，覆盖文本提取（txt/csv/html/docx/pdf/xlsx/pptx，其中 xlsx 夹具含两个工作表）、zip 自动解包、docx 脚注的真实渲染（`[[1]](#footnote-1)` 而不是 `[^1]`）、批量目录结构（含同名不同后缀不互相覆盖、跳过文件带原因上报）、坏文件与好文件混在一起时的退出码与报错、`-o` 落盘、`--json` 汇总、URL（`data:`）与 stdin 输入、`--help` 能力面、`--style-map` 与直接 `MarkItDown(style_map=...)` 结果一致、默认输出目录 `<input>_markdown`、打包脚本的 zip 清单（顶层只有 `markitdown/`、不含构建垃圾）、离线包支持（优先用 `vendor/python`、`--extra` 被忽略、构建脚本裁剪+自检）、「markitdown 不能 OCR」这条已知限制（图片和音频都断言空输出 + stderr 警告 + 退出码 0），以及四条源码级守卫：包装脚本必须固定 `--python 3.12`、保留 URI/`--extra`/跳过上报，文档不得出现 markitdown 里不存在的参数名、与 0.1.8 实际行为矛盾的格式说明，或把 .doc/.ppt 当成走 LibreOffice。
 
@@ -205,7 +212,7 @@ py scripts/build_offline_bundle.py --keep-python --skip-install      # 之后复
 py scripts/build_offline_bundle.py --extras docx,xls,xlsx,pptx,pdf   # 自定义烘进去的 extras
 ```
 
-产物 `dist/markitdown-<版本>-offline-<平台>.zip`，实测 **76.3 MiB**（Python 3.12.14 + `markitdown[docx,xls,xlsx,pptx,pdf]`，压缩前 204 MiB）。
+产物 `dist/markitdown-<版本>-offline-<平台>.zip`，实测 **76.3 MiB**（Python 3.12.14 + `markitdown[docx,xls,xlsx,pptx,pdf]==0.1.8`，压缩前 204 MiB）。
 
 目标机器上：解压到任意位置，直接跑——不装任何东西、不联网。
 
@@ -246,13 +253,15 @@ py scripts/build_offline_bundle.py --label offline-win-arm64   # 在 Windows ARM
 py scripts/package_skill.py                        # dist/markitdown-<版本>.zip
 py scripts/package_skill.py --version 1.0.0 --out /tmp
 py scripts/package_skill.py --vendor <解释器目录> --label offline-win-x64   # 打离线包
+py scripts/package_skill.py --flat                 # 平台上传包：SKILL.md 在 zip 根
 ```
 
-产物是**一个顶层目录** `markitdown/`，里面是 `SKILL.md`、`README.md`、`LICENSE`、`scripts/`、`references/`、`evals/`。
+默认产物是**一个顶层目录** `markitdown/`，里面是 `SKILL.md`、`README.md`、`LICENSE`、`scripts/`、`references/`、`evals/`。
 这个目录名必须是 `markitdown`（Agent Skills 规范要求 `name` 等于父目录名），
 所以不能直接压仓库根目录（那个目录叫 `markitdown-skill`）。
 
 - 包含 `evals/fixtures/`（本地存在时），所以解压后可以直接 `py evals/run_evals.py`，**不需要联网**
+- **平台上传（WorkBuddy / SkillPay）用 `--flat`**：`SKILL.md` 放到 zip 根，外面没有 `markitdown/` 这一层，文件名带 `-skillpay`。同时自动不带 `evals/fixtures/`——平台拒收 pdf/docx/xlsx/pptx/png/zip/wav 等类型。只想打个不带夹具的普通包用 `--no-fixtures`
 - 不包含 `.git/`、`__pycache__/`、`*.pyc`、`dist/`
 - 输出**可复现**：文件排序 + 固定时间戳，同一份源码永远同一个 sha256（实测两次构建一致）
 - 版本号取自 `SKILL.md` 的 `metadata.version`

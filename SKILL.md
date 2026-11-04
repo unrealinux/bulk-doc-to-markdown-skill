@@ -1,10 +1,10 @@
 ---
 name: markitdown
-description: "Use this skill whenever the user wants to read, extract, or convert any document file to Markdown. Triggers include: any mention of 'PDF', 'Word', 'docx', 'doc', 'PowerPoint', 'pptx', 'Excel', 'xlsx', 'spreadsheet', 'image with text', 'scan', 'OCR', 'extract text', 'convert to markdown', 'read this document', 'what is in this file', 'summarize this document'. Also triggers when the user provides a file path and asks to see its content in text form. Use for any document format that needs to be transformed into readable Markdown. 中文请求同样触发：把 PDF/Word/Excel/PPT 转成 Markdown、读取或提取文档内容、提取表格、批量转换文件夹、看一下这个文件里有什么。"
-license: MIT (see LICENSE; markitdown itself is MIT © Microsoft and is installed at runtime)
+description: "Use this skill whenever the user wants to read, extract, convert, or summarize a supported document file as Markdown. Triggers include: any mention of 'PDF', 'Word', 'docx', 'PowerPoint', 'pptx', 'Excel', 'xlsx', 'spreadsheet', 'extract text', 'convert to markdown', 'read this document', 'what is in this file', 'summarize this document'. Also triggers when the user provides a file path and asks to see its content in text form. Use for supported document formats that need to be transformed into readable Markdown. Does not OCR images or scanned PDFs. 中文请求同样触发：把 PDF/Word/Excel/PPT 转成 Markdown、读取或提取文档内容、提取表格、批量转换文件夹、看一下这个文件里有什么。"
+license: MIT
 compatibility: Requires Python 3.10+ and uv; the first run downloads markitdown from PyPI, so it needs network access (later runs use the uv cache).
 metadata:
-  version: 0.2.1
+  version: 0.3.0
   author: unrealinux
   homepage: https://github.com/unrealinux/markitdown-skill
 ---
@@ -35,16 +35,17 @@ A universal document reader powered by [microsoft/markitdown](https://github.com
 
 **Python 3.10+ is required** for markitdown. This skill uses `uv` for Python/environment management.
 
-```bash
-# Install uv (if not already installed)
-curl -LsSf https://astral.sh/uv/install.sh | sh
+Install `uv` with the official installer for your OS:
+<https://docs.astral.sh/uv/getting-started/installation/>. Make sure `uv` is on
+`PATH`; it installs Python 3.12 on first use.
 
-# Verify Python 3.12 is available
-~/.local/bin/uv python list
+```bash
+uv --version
+uv python list
 ```
 
-markitdown package is auto-installed on first use via uv, as
-`markitdown[docx,xls,xlsx,pptx,pdf]`. The extras matter: the bare package cannot
+markitdown package is auto-installed on first use via uv, pinned to
+`markitdown[docx,xls,xlsx,pptx,pdf]==0.1.8`. The extras matter: the bare package cannot
 read `.docx`, `.xlsx`, `.pptx` or `.pdf` and raises `MissingDependencyException`.
 Expect a 1-2 minute download on the very first conversion; later runs hit the cache.
 

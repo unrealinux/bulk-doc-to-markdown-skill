@@ -34,7 +34,30 @@ import tempfile
 # These five cover the common office formats; anything else (outlook, audio,
 # az-doc-intel, az-content-understanding, all) is reachable with --extra.
 BASE_EXTRAS = ["docx", "xls", "xlsx", "pptx", "pdf"]
-DEFAULT_WITH = "markitdown[" + ",".join(BASE_EXTRAS) + "]"
+
+# Pin the release this wrapper and its docs were verified against: uv otherwise
+# resolves the newest markitdown on every fresh cache, and behavior documented
+# for 0.1.8 could change underfoot.
+MARKITDOWN_VERSION = "0.1.8"
+
+
+def markitdown_requirement(extras):
+    """Build a pinned markitdown requirement for exactly these extras.
+
+    --extra all subsumes the rest, so asking for it alongside named extras must
+    not produce "markitdown[docx,...,all]".
+    """
+    names = [extra for extra in extras if extra]
+    if "all" in names:
+        return f"markitdown[all]=={MARKITDOWN_VERSION}"
+    deduped = []
+    for name in names:
+        if name not in deduped:
+            deduped.append(name)
+    return "markitdown[" + ",".join(deduped) + "]==" + MARKITDOWN_VERSION
+
+
+DEFAULT_WITH = markitdown_requirement(BASE_EXTRAS)
 
 # Extras that exist in markitdown 0.1.8, for the --extra help text.
 KNOWN_EXTRAS = [
@@ -239,19 +262,8 @@ def find_uv():
 
 
 def with_spec(extras):
-    """Build the markitdown requirement string for uv.
-
-    --extra all subsumes the rest, so asking for it alongside named extras must
-    not produce "markitdown[docx,...,all]".
-    """
-    names = list(BASE_EXTRAS) + [extra for extra in extras if extra]
-    if "all" in names:
-        return "markitdown[all]"
-    deduped = []
-    for name in names:
-        if name not in deduped:
-            deduped.append(name)
-    return "markitdown[" + ",".join(deduped) + "]"
+    """Build the pinned requirement for the base extras plus these extras."""
+    return markitdown_requirement(list(BASE_EXTRAS) + [extra for extra in extras if extra])
 
 
 def uv_command(uv_path, spec, snippet):
