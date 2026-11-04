@@ -24,7 +24,7 @@ Expand-Archive .\doc-to-markdown-0.3.0.zip -DestinationPath "$env:USERPROFILE\.a
 解压出来的目录名必须是 `doc-to-markdown`（Agent Skills 规范要求 frontmatter 的 `name` 等于父目录名），不要改名、也不要再套一层目录。开发时建议用软链指向工作副本，否则仓库更新不会生效：
 
 ```bash
-ln -s /path/to/markitdown-skill ~/.agents/skills/doc-to-markdown
+ln -s /path/to/doc-to-markdown-skill ~/.agents/skills/doc-to-markdown
 ```
 
 验证装好了（Windows 把 `python3` 换成 `py`）：
@@ -258,7 +258,7 @@ py scripts/package_skill.py --flat                 # 平台上传包：SKILL.md 
 
 默认产物是**一个顶层目录** `doc-to-markdown/`，里面是 `SKILL.md`、`README.md`、`LICENSE`、`scripts/`、`references/`、`evals/`。
 这个目录名必须是 `doc-to-markdown`（Agent Skills 规范要求 `name` 等于父目录名），
-所以不能直接压仓库根目录（那个目录叫 `markitdown-skill`）。
+所以不能直接压仓库根目录（那个目录叫 `doc-to-markdown-skill`）。
 
 - 包含 `evals/fixtures/`（本地存在时），所以解压后可以直接 `py evals/run_evals.py`，**不需要联网**
 - **平台上传（WorkBuddy / SkillPay）用 `--flat`**：`SKILL.md` 放到 zip 根，外面没有 `doc-to-markdown/` 这一层，文件名带 `-skillpay`。同时自动不带 `evals/fixtures/`——平台拒收 pdf/docx/xlsx/pptx/png/zip/wav 等类型。只想打个不带夹具的普通包用 `--no-fixtures`

@@ -16,7 +16,7 @@ The archive contains a single top-level directory named after the skill:
 
 That folder name has to match `name:` in SKILL.md, because the Agent Skills
 specification requires the name to equal the parent directory name — so zipping
-the repository root (markitdown-skill/) would produce a skill other
+the repository root (doc-to-markdown-skill/) would produce a skill other
 implementations reject.
 
 Excluded: .git, __pycache__, *.pyc/.pyo, dist/. evals/fixtures/ is included when

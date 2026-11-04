@@ -6,7 +6,7 @@ compatibility: Requires Python 3.10+ and uv; the first run downloads markitdown 
 metadata:
   version: 0.3.0
   author: unrealinux
-  homepage: https://github.com/unrealinux/markitdown-skill
+  homepage: https://github.com/unrealinux/doc-to-markdown-skill
 ---
 
 # Document → Markdown Converter
