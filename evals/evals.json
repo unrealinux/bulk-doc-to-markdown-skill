@@ -395,15 +395,16 @@
     },
     {
       "id": 33,
-      "prompt": "平台上传包：--flat 把 SKILL.md 放到 zip 根，且不带平台拒收的夹具",
-      "expected_output": "文件名带 -skillpay、声明 SKILL.md 在根、清单无 doc-to-markdown/ 前缀、evals/fixtures/ 被明确排除",
+      "prompt": "平台上传包：--for workbuddy 把 SKILL.md 放到 zip 根，且不带平台拒收的夹具",
+      "expected_output": "文件名带 -workbuddy、声明 SKILL.md 在根、标出 target、清单无 doc-to-markdown/ 前缀、evals/fixtures/ 被明确排除",
       "mode": "cli",
       "script": "scripts/package_skill.py",
-      "args": ["--out", "{out}", "--version", "9.9.9", "--flat"],
+      "args": ["--out", "{out}", "--version", "9.9.9", "--for", "workbuddy"],
       "min_chars": 40,
       "expect_stdout_contains": [
-        "doc-to-markdown-9.9.9-skillpay.zip",
+        "doc-to-markdown-9.9.9-workbuddy.zip",
         "SKILL.md at the zip root",
+        "target: workbuddy",
         "evals/fixtures/: left out",
         "\n     SKILL.md",
         "\n     scripts/convert.py"

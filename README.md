@@ -196,7 +196,7 @@ python3 evals/make_fixtures.py && python3 evals/run_evals.py
 
 夹具中的 txt/csv/html/docx/pdf/png 与目录树由标准库生成，不需要联网；`sample.xlsx` / `sample.pptx` 通过 uv + `openpyxl` + `python-pptx` 生成（手写 OOXML 很难同时满足这两个读取器），拿不到网络时这两条评测显示为 SKIP 而不是失败。GitHub Release 的包内带夹具，解压后可直接跑 `run_evals.py`，全程离线；SkillHub 上传包按平台规则不含夹具，需要先跑 `make_fixtures.py`。
 
-共 33 条评测，覆盖文本提取（txt/csv/html/docx/pdf/xlsx/pptx，其中 xlsx 夹具含两个工作表）、zip 自动解包、docx 脚注的真实渲染（`[[1]](#footnote-1)` 而不是 `[^1]`）、批量目录结构（含同名不同后缀不互相覆盖、跳过文件带原因上报）、坏文件与好文件混在一起时的退出码与报错、`-o` 落盘、`--json` 汇总、URL（`data:`）与 stdin 输入、`--help` 能力面、`--style-map` 与直接 `MarkItDown(style_map=...)` 结果一致、默认输出目录 `<input>_markdown`、打包脚本的 zip 清单（顶层只有 `doc-to-markdown/`、不含构建垃圾）、平台上传包的清单（`--flat` 时 `SKILL.md` 在 zip 根且不带夹具）、离线包支持（优先用 `vendor/python`、`--extra` 被忽略、构建脚本裁剪+自检）、「markitdown 不能 OCR」这条已知限制（图片和音频都断言空输出 + stderr 警告 + 退出码 0），以及四条源码级守卫：包装脚本必须固定 `--python 3.12`、保留 URI/`--extra`/跳过上报，文档不得出现 markitdown 里不存在的参数名、与 0.1.8 实际行为矛盾的格式说明，或把 .doc/.ppt 当成走 LibreOffice。
+共 33 条评测，覆盖文本提取（txt/csv/html/docx/pdf/xlsx/pptx，其中 xlsx 夹具含两个工作表）、zip 自动解包、docx 脚注的真实渲染（`[[1]](#footnote-1)` 而不是 `[^1]`）、批量目录结构（含同名不同后缀不互相覆盖、跳过文件带原因上报）、坏文件与好文件混在一起时的退出码与报错、`-o` 落盘、`--json` 汇总、URL（`data:`）与 stdin 输入、`--help` 能力面、`--style-map` 与直接 `MarkItDown(style_map=...)` 结果一致、默认输出目录 `<input>_markdown`、打包脚本的 zip 清单（顶层只有 `doc-to-markdown/`、不含构建垃圾）、平台上传包的清单（`--for workbuddy` 时 `SKILL.md` 在 zip 根且不带夹具）、离线包支持（优先用 `vendor/python`、`--extra` 被忽略、构建脚本裁剪+自检）、「markitdown 不能 OCR」这条已知限制（图片和音频都断言空输出 + stderr 警告 + 退出码 0），以及四条源码级守卫：包装脚本必须固定 `--python 3.12`、保留 URI/`--extra`/跳过上报，文档不得出现 markitdown 里不存在的参数名、与 0.1.8 实际行为矛盾的格式说明，或把 .doc/.ppt 当成走 LibreOffice。
 
 批量模式在**同一个解释器**里转完所有文件（`import markitdown` 本身要 5 秒）。实测：4 个文件 21.9s → 6.0s，101 个文件约 9 秒。单文件模式绕不开这 5 秒，等 6-9 秒是正常的，不要当成卡死。
 
@@ -253,7 +253,8 @@ py scripts/build_offline_bundle.py --label offline-win-arm64   # 在 Windows ARM
 py scripts/package_skill.py                        # dist/doc-to-markdown-<版本>.zip
 py scripts/package_skill.py --version 1.0.0 --out /tmp
 py scripts/package_skill.py --vendor <解释器目录> --label offline-win-x64   # 打离线包
-py scripts/package_skill.py --flat                 # 平台上传包：SKILL.md 在 zip 根
+py scripts/package_skill.py --for workbuddy       # WorkBuddy 上传包：SKILL.md 在 zip 根
+py scripts/package_skill.py --for skillpay        # 支付宝 SkillPay 上传包（同格式）
 ```
 
 默认产物是**一个顶层目录** `doc-to-markdown/`，里面是 `SKILL.md`、`README.md`、`LICENSE`、`NOTICE.md`、`scripts/`、`references/`、`evals/`。
@@ -261,7 +262,7 @@ py scripts/package_skill.py --flat                 # 平台上传包：SKILL.md 
 所以不能直接压仓库根目录（那个目录叫 `doc-to-markdown-skill`）。
 
 - 包含 `evals/fixtures/`（本地存在时），所以解压后可以直接 `py evals/run_evals.py`，**不需要联网**
-- **平台上传（WorkBuddy / SkillPay）用 `--flat`**：`SKILL.md` 放到 zip 根，外面没有 `doc-to-markdown/` 这一层，文件名带 `-skillpay`。同时自动不带 `evals/fixtures/`——平台拒收 pdf/docx/xlsx/pptx/png/zip/wav 等类型。只想打个不带夹具的普通包用 `--no-fixtures`
+- **平台上传用 `--for <平台>`**（`workbuddy` 或 `skillpay`）：`SKILL.md` 放到 zip 根，外面没有 `doc-to-markdown/` 这一层，文件名带平台名，如 `doc-to-markdown-0.3.0-workbuddy.zip`。两个平台的文件格式一致，差别只在文件名，别指望内容会变。同时自动不带 `evals/fixtures/`——平台拒收 pdf/docx/xlsx/pptx/png/zip/wav 等类型。只想打个不带夹具的普通包用 `--no-fixtures`；`--flat` 是不写平台名的同款布局（文件名带 `-flat`）
 - 不包含 `.git/`、`__pycache__/`、`*.pyc`、`dist/`
 - 输出**可复现**：文件排序 + 固定时间戳，同一份源码永远同一个 sha256（实测两次构建一致）
 - 版本号取自 `SKILL.md` 的 `metadata.version`

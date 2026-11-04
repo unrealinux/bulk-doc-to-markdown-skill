@@ -2,6 +2,7 @@
 """Build the distributable zip for this skill.
 
     py scripts/package_skill.py                 # dist/doc-to-markdown-<version>.zip
+    py scripts/package_skill.py --for workbuddy # upload package for WorkBuddy
     py scripts/package_skill.py --version 1.0.0 --out /tmp
 
 The archive contains a single top-level directory named after the skill:
@@ -24,12 +25,14 @@ Excluded: .git, __pycache__, *.pyc/.pyo, dist/. evals/fixtures/ is included when
 present (it is gitignored and rebuilt by make_fixtures.py) so an unpacked copy can
 run its own test suite offline; a missing fixtures/ directory only warns.
 
-    py scripts/package_skill.py --flat --no-fixtures   # platform upload package
+    py scripts/package_skill.py --for workbuddy   # dist/doc-to-markdown-<v>-workbuddy.zip
+    py scripts/package_skill.py --for skillpay    # ... -skillpay.zip
+    py scripts/package_skill.py --flat            # same layout, no platform in the name
 
---flat puts SKILL.md at the archive root instead of under doc-to-markdown/, which is
-what a skill marketplace (WorkBuddy / SkillPay) expects. --no-fixtures drops
-evals/fixtures/: those are pdf/docx/xlsx/pptx/png/zip/wav files and the platform
-rejects those types. --flat implies --no-fixtures.
+--flat puts SKILL.md at the archive root instead of under doc-to-markdown/, which
+is what a skill marketplace expects. --no-fixtures drops evals/fixtures/: those
+are pdf/docx/xlsx/pptx/png/zip/wav files and the platform rejects those types.
+--flat and --for both imply --no-fixtures.
 
 Output is byte-reproducible: entries are sorted and carry a fixed timestamp, so
 the same sources always hash the same.
@@ -186,11 +189,16 @@ def main():
     parser.add_argument("--flat", action="store_true",
                         help="Put SKILL.md at the archive root (marketplace upload); "
                              "implies --no-fixtures")
+    parser.add_argument("--for", dest="target", choices=["workbuddy", "skillpay"],
+                        help="Build the upload package for that marketplace: same "
+                             "layout as --flat, and the file name says which one")
     parser.add_argument("--no-fixtures", action="store_true",
                         help="Leave out evals/fixtures/ — the marketplace rejects "
                              "pdf/docx/xlsx/pptx/png/zip/wav")
     args = parser.parse_args()
-    include_fixtures = not (args.flat or args.no_fixtures)
+    # An upload package drops the fixtures and puts SKILL.md at the root either way.
+    flat = args.flat or bool(args.target)
+    include_fixtures = not (flat or args.no_fixtures)
 
     frontmatter = read_frontmatter(os.path.join(SKILL_ROOT, "SKILL.md"))
     folder = frontmatter.get("name")
@@ -203,7 +211,7 @@ def main():
         return 1
 
     version = args.version or frontmatter.get("metadata.version") or "0.0.0"
-    if args.flat and args.vendor:
+    if flat and args.vendor:
         print("Error: --flat is for marketplace upload; the offline bundle needs "
               "its archive folder", file=sys.stderr)
         return 1
@@ -214,17 +222,20 @@ def main():
     vendor_files = collect_vendor(args.vendor) if args.vendor else []
     entries += vendor_files
 
-    stem = f"{folder}-{version}" + ("-skillpay" if args.flat else "")
+    stem = f"{folder}-{version}" + (f"-{args.target}" if args.target
+                                    else "-flat" if args.flat else "")
     stem += f"-{args.label}" if args.label else ""
     # Flat means the archive is nothing but the skill: no outer folder at all.
-    archive_folder = "" if args.flat else folder
+    archive_folder = "" if flat else folder
     out_path = os.path.join(args.out, f"{stem}.zip")
     digest = build(SKILL_ROOT, out_path, archive_folder, entries)
 
     size = os.path.getsize(out_path)
     print(f"📦 {out_path}")
-    if args.flat:
+    if flat:
         print("   skill root: SKILL.md at the zip root (flat, for marketplace upload)")
+        if args.target:
+            print(f"   target: {args.target}")
     else:
         print(f"   skill folder: {folder}/  (matches name: in SKILL.md)")
     print(f"   version: {version}")
