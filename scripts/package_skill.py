@@ -10,6 +10,7 @@ The archive contains a single top-level directory named after the skill:
     ├── SKILL.md
     ├── README.md
     ├── LICENSE
+    ├── NOTICE.md
     ├── scripts/
     ├── references/
     └── evals/
@@ -52,7 +53,8 @@ FIXED_TIME = (1980, 1, 1, 0, 0, 0)
 
 # SKILL.md stays at the archive root; these are the only top-level entries that
 # travel with it.
-INCLUDE = ["SKILL.md", "README.md", "LICENSE", "scripts", "references", "evals"]
+INCLUDE = ["SKILL.md", "README.md", "LICENSE", "NOTICE.md", "scripts",
+           "references", "evals"]
 
 
 def read_frontmatter(path):

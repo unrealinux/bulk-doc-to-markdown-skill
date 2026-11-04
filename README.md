@@ -256,7 +256,7 @@ py scripts/package_skill.py --vendor <解释器目录> --label offline-win-x64  
 py scripts/package_skill.py --flat                 # 平台上传包：SKILL.md 在 zip 根
 ```
 
-默认产物是**一个顶层目录** `doc-to-markdown/`，里面是 `SKILL.md`、`README.md`、`LICENSE`、`scripts/`、`references/`、`evals/`。
+默认产物是**一个顶层目录** `doc-to-markdown/`，里面是 `SKILL.md`、`README.md`、`LICENSE`、`NOTICE.md`、`scripts/`、`references/`、`evals/`。
 这个目录名必须是 `doc-to-markdown`（Agent Skills 规范要求 `name` 等于父目录名），
 所以不能直接压仓库根目录（那个目录叫 `doc-to-markdown-skill`）。
 
@@ -284,6 +284,7 @@ doc-to-markdown/
 ├── SKILL.md                  # 主技能文件（英文，模型读）
 ├── README.md                 # 完整中文说明（本文件，人读）
 ├── LICENSE                   # MIT（markitdown 本体为 MIT © Microsoft，运行时安装）
+├── NOTICE.md                 # 来源与归属：上游 MIT、本仓库自写部分、边界声明
 ├── scripts/
 │   ├── convert.py            # 转换脚本
 │   ├── package_skill.py      # 打包成可分发的 zip
