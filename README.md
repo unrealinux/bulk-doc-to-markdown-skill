@@ -184,7 +184,9 @@ python3 $SKILL/scripts/convert.py invoice.txt
 | 输出为空但退出码 0 | 同上，空输出不算失败 | 看 stderr 的 `⚠️ Empty output` 提示 |
 | stderr 出现 `\U0001f680` 这类转义 | 老版本包装脚本没切 UTF-8 | 升级到当前版本（`force_utf8_stdout` 已修） |
 | 等 6-9 秒没反应 | `import markitdown` 本身约 5 秒 | 正常，别中断；批量模式只付一次 |
-| 第一次转换卡很久 | uv 在下载 markitdown 及依赖 | 首次 1-2 分钟，之后走缓存 |
+| 第一次转换卡很久 | uv 在下载 markitdown 及依赖 | 首次 1-2 分钟，之后走缓存；换成国内镜像源更快（`UV_DEFAULT_INDEX`） |
+| `Conversion failed:` + `Failed to fetch` / `Request failed after 3 retries` / `Connection refused` | 网络被拦或包索引不可达 | 重试没有用：换可达的镜像（`UV_DEFAULT_INDEX=https://pypi.tuna.tsinghua.edu.cn/simple`）跑一次，或改用离线包 |
+| 沙箱里没有 uv、也不许联网 | 托管环境（如 WorkBuddy 类平台）限制 | 用离线包（自带解释器），或把 `MARKITDOWN_PYTHON` 指向一个已装 markitdown 的解释器；别原地重试 |
 | `-d` 报端点缺失 | 用了 Document Intelligence 没给端点 | 加 `-e`，或设 `MARKITDOWN_DOCINTEL_ENDPOINT` |
 | 中文乱码 | 源文件不是 UTF-8 | 另存为 UTF-8 再转 |
 

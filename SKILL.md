@@ -4,7 +4,7 @@ description: "Use this skill whenever the user wants to read, extract, convert, 
 license: MIT
 compatibility: Requires Python 3.10+ and uv; the first run downloads markitdown from PyPI, so it needs network access (later runs use the uv cache).
 metadata:
-  version: 0.3.1
+  version: 0.3.2
   author: unrealinux
   homepage: https://github.com/unrealinux/doc-to-markdown-skill
 ---
@@ -48,6 +48,22 @@ markitdown package is auto-installed on first use via uv, pinned to
 `markitdown[docx,xls,xlsx,pptx,pdf]==0.1.8`. The extras matter: the bare package cannot
 read `.docx`, `.xlsx`, `.pptx` or `.pdf` and raises `MissingDependencyException`.
 Expect a 1-2 minute download on the very first conversion; later runs hit the cache.
+That figure assumes a reachable package index — against a slow or blocked PyPI the
+first run prints nothing for many minutes.
+
+### When the runtime cannot install anything
+
+Hosted runtimes (WorkBuddy and friends) sometimes run skills without `uv`, without
+network, or with both. Two failures look different and neither is fixed by retrying:
+
+| What you see | What it means | What to do instead |
+|---|---|---|
+| `Error: uv not found. Install it first:` and exit code 1 | No `uv` on `PATH` | Tell the user. If some interpreter already has markitdown, set `MARKITDOWN_PYTHON=/path/to/python`; if the skill ships `vendor/python/`, that is used automatically |
+| `Conversion failed:` followed by `Failed to fetch:`, `Request failed after 3 retries`, `tcp connect error` or `Connection refused` | Network blocked, or the package index is unreachable | Point `UV_DEFAULT_INDEX` at a reachable mirror and run again once; otherwise use the offline bundle. Do not loop on the same command |
+| Nothing on stdout or stderr for minutes | A first download against a slow index | Wait it out once; if it fails, fall back as above |
+
+Never report a conversion as successful when the output is empty or when the command
+exited non-zero — say what failed and what the user can install.
 
 **Windows:** use `py` (the `python` on PATH is the Windows Store stub and prints nothing) and no `~/.local/bin` prefix. uv usually lives at `%APPDATA%\Python\Python3xx\Scripts\uv.exe`, and this wrapper asks uv for Python 3.12 explicitly. Every example below writes `python3`; on Windows substitute `py`. Example:
 
