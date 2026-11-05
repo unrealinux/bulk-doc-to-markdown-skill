@@ -1,6 +1,6 @@
 # 商品页文案（WorkBuddy / SkillPay）
 
-上传用 `scripts/package_skill.py --for workbuddy` 产出的 `dist/doc-to-markdown-<版本>-workbuddy.zip`（WorkBuddy）或 `--for skillpay`（支付宝）。两个包内容一样，只有文件名不同。
+上传用 `scripts/package_skill.py --for workbuddy` 产出的 `dist/bulk-doc-to-markdown-<版本>-workbuddy.zip`（WorkBuddy）或 `--for skillpay`（支付宝）。两个包内容一样，只有文件名不同。
 
 上传后要在「技能发布管理」里填的介绍与使用说明。平台要求说清四件事：**适合谁、交什么材料、拿到什么结果、有哪些限制**。下面各段可直接复制。
 
@@ -8,7 +8,7 @@
 
 ## 名称
 
-`doc-to-markdown`
+`bulk-doc-to-markdown`
 
 （技能目录名、`SKILL.md` 的 `name` 都是这个。市场里若有重名，优先报错不要自己改名——目录名和 `name` 必须一致。）
 
