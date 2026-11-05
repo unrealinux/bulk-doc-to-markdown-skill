@@ -140,21 +140,58 @@ def build(root, out_path, folder, entries):
     prefix = f"{folder}/" if folder else ""
     os.makedirs(os.path.dirname(os.path.abspath(out_path)), exist_ok=True)
     with zipfile.ZipFile(out_path, "w", zipfile.ZIP_DEFLATED) as archive:
-        for source, relative in entries:
+        for entry in entries:
+            source, relative = entry[0], entry[1]
             info = zipfile.ZipInfo(f"{prefix}{relative}", date_time=FIXED_TIME)
             info.compress_type = zipfile.ZIP_DEFLATED
             # 0644 for files, and 0755 for the scripts so an unpacked copy can
             # run them directly on Unix.
             executable = relative.endswith((".py", ".sh"))
             info.external_attr = (0o755 if executable else 0o644) << 16
-            with open(source, "rb") as handle:
-                archive.writestr(info, handle.read())
+            payload = entry[2] if len(entry) > 2 else None
+            if payload is None:
+                with open(source, "rb") as handle:
+                    payload = handle.read()
+            archive.writestr(info, payload)
 
     digest = hashlib.sha256()
     with open(out_path, "rb") as handle:
         for chunk in iter(lambda: handle.read(65536), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+# The marketplace caps directory depth, so --single-level ships only what runs
+# and puts it at the archive root. Paths in SKILL.md are rewritten to match.
+SINGLE_LEVEL = [
+    ("SKILL.md", "SKILL.md"),
+    ("LICENSE", "LICENSE"),
+    ("NOTICE.md", "NOTICE.md"),
+    ("scripts/convert.py", "convert.py"),
+    ("references/formats.md", "formats.md"),
+]
+SINGLE_LEVEL_REWRITES = [
+    ("scripts/convert.py", "convert.py"),
+    ("references/formats.md", "formats.md"),
+]
+
+
+def single_level_entries(root):
+    """(source, archive_name, payload) with no directories at all."""
+    entries = []
+    for relative, archive_name in SINGLE_LEVEL:
+        source = os.path.join(root, relative)
+        if not os.path.isfile(source):
+            raise SystemExit(f"Error: --single-level expects {relative}")
+        payload = None
+        if relative == "SKILL.md":
+            with open(source, encoding="utf-8") as handle:
+                text = handle.read()
+            for old, new in SINGLE_LEVEL_REWRITES:
+                text = text.replace(old, new)
+            payload = text.encode("utf-8")
+        entries.append((source, archive_name, payload))
+    return entries
 
 
 def force_utf8_stdio():
@@ -192,6 +229,10 @@ def main():
     parser.add_argument("--for", dest="target", choices=["workbuddy", "skillpay"],
                         help="Build the upload package for that marketplace: same "
                              "layout as --flat, and the file name says which one")
+    parser.add_argument("--single-level", action="store_true",
+                        help="Upload package with no subdirectories: SKILL.md, "
+                             "LICENSE, NOTICE.md, convert.py, formats.md at the root "
+                             "(for marketplaces that cap directory depth)")
     parser.add_argument("--no-fixtures", action="store_true",
                         help="Leave out evals/fixtures/ — the marketplace rejects "
                              "pdf/docx/xlsx/pptx/png/zip/wav")
@@ -217,14 +258,20 @@ def main():
               "its archive folder", file=sys.stderr)
         return 1
 
-    files = collect_files(SKILL_ROOT, include_fixtures=include_fixtures)
-    entries = [(os.path.join(SKILL_ROOT, relative), relative) for relative in files]
+    if args.single_level:
+        entries = single_level_entries(SKILL_ROOT)
+        files = [archive_name for _, archive_name, _ in entries]
+        flat = True
+    else:
+        files = collect_files(SKILL_ROOT, include_fixtures=include_fixtures)
+        entries = [(os.path.join(SKILL_ROOT, relative), relative) for relative in files]
 
     vendor_files = collect_vendor(args.vendor) if args.vendor else []
     entries += vendor_files
 
     stem = f"{folder}-{version}" + (f"-{args.target}" if args.target
                                     else "-flat" if args.flat else "")
+    stem += "-nodirs" if args.single_level else ""
     stem += f"-{args.label}" if args.label else ""
     # Flat means the archive is nothing but the skill: no outer folder at all.
     archive_folder = "" if flat else folder
@@ -233,7 +280,9 @@ def main():
 
     size = os.path.getsize(out_path)
     print(f"📦 {out_path}")
-    if flat:
+    if args.single_level:
+        print("   skill root: flat, no subdirectories, paths in SKILL.md rewritten")
+    elif flat:
         print("   skill root: SKILL.md at the zip root (flat, for marketplace upload)")
         if args.target:
             print(f"   target: {args.target}")

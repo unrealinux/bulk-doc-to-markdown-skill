@@ -1,6 +1,6 @@
 ---
 name: doc-to-markdown
-version: 0.3.4
+version: 0.3.5
 display_name: 批量文档转 Markdown
 display_name_en: Bulk Document to Markdown
 description: "Use this skill whenever the user wants to read, extract, convert, or summarize a supported document file as Markdown. Triggers include: any mention of 'PDF', 'Word', 'docx', 'PowerPoint', 'pptx', 'Excel', 'xlsx', 'spreadsheet', 'extract text', 'convert to markdown', 'read this document', 'what is in this file', 'summarize this document'. Also triggers when the user provides a file path and asks to see its content in text form. Use for supported document formats that need to be transformed into readable Markdown. Does not OCR images or scanned PDFs. 中文请求同样触发：把 PDF/Word/Excel/PPT 转成 Markdown、读取或提取文档内容、提取表格、批量转换文件夹、看一下这个文件里有什么。"

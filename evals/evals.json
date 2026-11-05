@@ -418,13 +418,30 @@
       "files": ["SKILL.md"],
       "mode": "source",
       "expect_contains": [
-        "\nversion: 0.3.4\n",
+        "\nversion: 0.3.5\n",
         "\ndisplay_name: ",
         "\ndisplay_name_en: ",
         "\ndescription_zh: ",
         "\ndescription_en: "
       ],
       "expect_not_contains": ["metadata:\n  version:"]
+    },
+    {
+      "id": 35,
+      "prompt": "市场限目录层级时，--single-level 必须产出零子目录的包，且 SKILL.md 路径同步改写",
+      "expected_output": "5 个文件全在根、无 scripts/ 与 references/、清单里是 convert.py 与 formats.md",
+      "mode": "cli",
+      "script": "scripts/package_skill.py",
+      "args": ["--out", "{out}", "--version", "9.9.9", "--for", "workbuddy", "--single-level"],
+      "min_chars": 40,
+      "expect_stdout_contains": [
+        "doc-to-markdown-9.9.9-workbuddy-nodirs.zip",
+        "no subdirectories",
+        "\n     SKILL.md",
+        "\n     convert.py",
+        "\n     formats.md"
+      ],
+      "expect_not_contains": ["scripts/", "references/"]
     }
   ]
 }
