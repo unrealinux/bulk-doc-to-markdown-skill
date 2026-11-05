@@ -178,8 +178,8 @@ def main():
     parser.add_argument("--out", default=os.path.join(SKILL_ROOT, "dist"),
                         help="Directory for the .zip (default: <skill>/dist)")
     parser.add_argument("--version",
-                        help="Version for the file name (default: metadata.version "
-                             "from SKILL.md)")
+                        help="Version for the file name (default: version from "
+                             "SKILL.md)")
     parser.add_argument("--vendor", metavar="DIR",
                         help="Ship DIR as vendor/python/ inside the archive "
                              "(offline bundle: a standalone interpreter that "
@@ -210,7 +210,8 @@ def main():
         print(f"Error: --vendor directory not found: {args.vendor}", file=sys.stderr)
         return 1
 
-    version = args.version or frontmatter.get("metadata.version") or "0.0.0"
+    version = (args.version or frontmatter.get("version")
+               or frontmatter.get("metadata.version") or "0.0.0")
     if flat and args.vendor:
         print("Error: --flat is for marketplace upload; the offline bundle needs "
               "its archive folder", file=sys.stderr)

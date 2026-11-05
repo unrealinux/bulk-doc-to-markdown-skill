@@ -267,7 +267,7 @@ py scripts/package_skill.py --for skillpay        # 支付宝 SkillPay 上传包
 - **平台上传用 `--for <平台>`**（`workbuddy` 或 `skillpay`）：`SKILL.md` 放到 zip 根，外面没有 `doc-to-markdown/` 这一层，文件名带平台名，如 `doc-to-markdown-0.3.0-workbuddy.zip`。两个平台的文件格式一致，差别只在文件名，别指望内容会变。同时自动不带 `evals/fixtures/`——平台拒收 pdf/docx/xlsx/pptx/png/zip/wav 等类型。只想打个不带夹具的普通包用 `--no-fixtures`；`--flat` 是不写平台名的同款布局（文件名带 `-flat`）
 - 不包含 `.git/`、`__pycache__/`、`*.pyc`、`dist/`
 - 输出**可复现**：文件排序 + 固定时间戳，同一份源码永远同一个 sha256（实测两次构建一致）
-- 版本号取自 `SKILL.md` 的 `metadata.version`
+- 版本号取自 `SKILL.md` 的顶层 `version`
 
 分发方式：
 

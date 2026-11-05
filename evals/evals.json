@@ -410,6 +410,21 @@
         "\n     scripts/convert.py"
       ],
       "expect_not_contains": ["doc-to-markdown/SKILL.md", "doc-to-markdown/evals", ".docx", ".pdf"]
+    },
+    {
+      "id": 34,
+      "prompt": "frontmatter 必须带平台要求的五个字段，否则市场解析直接失败",
+      "expected_output": "顶层有 version、display_name、display_name_en、description_zh、description_en，且 version 与包文件名一致",
+      "files": ["SKILL.md"],
+      "mode": "source",
+      "expect_contains": [
+        "\nversion: 0.3.3\n",
+        "\ndisplay_name: ",
+        "\ndisplay_name_en: ",
+        "\ndescription_zh: ",
+        "\ndescription_en: "
+      ],
+      "expect_not_contains": ["metadata:\n  version:"]
     }
   ]
 }

@@ -363,7 +363,7 @@ def main():
 
     print("6/6 package")
     frontmatter = packaging.read_frontmatter(os.path.join(SKILL_ROOT, "SKILL.md"))
-    version = frontmatter.get("metadata.version") or "0.0.0"
+    version = frontmatter.get("version") or frontmatter.get("metadata.version") or "0.0.0"
     folder = frontmatter.get("name") or "doc-to-markdown"
     files = packaging.collect_files(SKILL_ROOT)
     entries = [(os.path.join(SKILL_ROOT, rel), rel) for rel in files]
