@@ -418,7 +418,7 @@
       "files": ["SKILL.md"],
       "mode": "source",
       "expect_contains": [
-        "\nversion: 0.3.3\n",
+        "\nversion: 0.3.4\n",
         "\ndisplay_name: ",
         "\ndisplay_name_en: ",
         "\ndescription_zh: ",
